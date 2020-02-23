@@ -1,5 +1,6 @@
 <script context="module">
   const apiUrl = process.env.SAPPER_APP_API_URL;
+  
   export async function preload() {
     const res = await this.fetch(`${apiUrl}/categories`);
     return {
@@ -30,6 +31,8 @@
     toilRemaining
   } from "../stores/store.js";
 
+  // manually setting userId is a hack until auth is implemented
+  const userId = process.env.SAPPER_APP_USER_ID;
   export let categories;
 
   async function getLeaveData(user, leaveYear) {
@@ -202,6 +205,7 @@
   }
 
   onMount(() => {
+    $user = userId;
     getCurrentLeaveYear();
     setDisplayLeaveYear();
     setHolidayDisplayData($user, $dbLeaveYear);

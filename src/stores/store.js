@@ -3,7 +3,7 @@ import { writable } from 'svelte/store';
 export let dbLeaveYear = writable('');
 export let displayLeaveYear = writable('');
 
-export let user = writable('ck4smhcc70000c54pdnzgmewt');
+export let user = writable('');
 
 export let formData = writable({
   itemIndex: undefined,
