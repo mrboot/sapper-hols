@@ -38,7 +38,7 @@
   async function getLeaveData(user, leaveYear) {
     let entitlement = await getEntitlement(user, leaveYear);
     if (entitlement.length === 0) {
-      entitlement = await setEntitlement(user, leaveYear);
+      entitlement = await setEntitlement();
     }
     const base = entitlement[0].base;
     const carried = entitlement[0].carried;
@@ -111,7 +111,7 @@
 
   async function getEntitlement(user, leaveYear) {
     const res = await fetch(
-      `${apiUrl}/entitlement?user=${user}&leaveYear=${leaveYear}`
+      `${apiUrl}/entitlements?user=${user}&leaveYear=${leaveYear}`
     );
     const entitlement = await res.json();
     return entitlement;
@@ -122,9 +122,9 @@
       user: $user,
       leaveYear: $dbLeaveYear,
       base,
-      carried
+      carried,
     };
-    const res = await fetch(`${apiUrl}/entitlement`, {
+    const res = await fetch(`${apiUrl}/entitlements`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -144,7 +144,7 @@
   }
 
   async function getToilDataFromDb(user) {
-    const res = await fetch(`${apiUrl}/toil?user=${user}`);
+    const res = await fetch(`${apiUrl}/holidays/toil?user=${user}`);
     const toilData = await res.json();
     return toilData;
   }
@@ -166,7 +166,7 @@
 
   async function deleteLeaveEntry(event) {
     const holId = event.detail.holId;
-    const res = await fetch(`${apiUrl}/holiday?id=${holId}`, {
+    const res = await fetch(`${apiUrl}/holidays/${holId}`, {
       method: "DELETE"
     });
     refreshLeaveData();
@@ -175,10 +175,11 @@
   async function addLeaveEntry(event) {
     const leaveEntry = {
       user: $user,
-      leaveYear: $dbLeaveYear,
+      // leaveYear: $dbLeaveYear,
       ...event.detail
     };
-    const res = await fetch(`${apiUrl}/holiday`, {
+    console.log(leaveEntry)
+    const res = await fetch(`${apiUrl}/holidays`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -189,12 +190,13 @@
   }
 
   async function editLeaveEntry(event) {
+    const {id, ...leaveValues} = event.detail
     const leaveEntry = {
       user: $user,
-      leaveYear: $dbLeaveYear,
-      ...event.detail
+      // leaveYear: $dbLeaveYear,
+      ...leaveValues
     };
-    const res = await fetch(`${apiUrl}/holiday`, {
+    const res = await fetch(`${apiUrl}/holidays/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"

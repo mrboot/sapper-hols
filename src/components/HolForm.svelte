@@ -154,7 +154,7 @@
 
   async function getPublicHolidays(startYear, endYear) {
     const res = await fetch(
-      `${apiUrl}/bankhols?startYear=${startYear}&endYear=${endYear}`
+      `${apiUrl}/bank-holidays/search?startYear=${startYear}&endYear=${endYear}`
     );
     const bankHols = await res.json();
     return bankHols;
