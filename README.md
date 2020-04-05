@@ -6,11 +6,11 @@ Using (this time):
 
 - Svelte & Sapper
 - Postgres to store the data
-- Strapi CMS as the backend API - see [here] (https://github.com/mrboot/strapi-hols "STRAPI-HOLS") for that.
+- Strapi CMS as the backend API - see [here](https://github.com/mrboot/strapi-hols "STRAPI-HOLS") for that repo.
 
 Learning as I go so expect mistakes and _\*cough\*_ not industry standard coding standards I would imagine!
 
-## TODO:
+### TODO:
 
 - [x] ~~account for weekends and bank holidays when calculating time~~
 - [x] ~~auto-fill time for entitlement~~
