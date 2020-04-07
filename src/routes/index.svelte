@@ -1,14 +1,3 @@
-<script context="module">
-  const apiUrl = process.env.SAPPER_APP_API_URL;
-  
-  export async function preload() {
-    const res = await this.fetch(`${apiUrl}/categories`);
-    return {
-      categories: await res.json()
-    };
-  }
-</script>
-
 <script>
   import { onMount } from "svelte";
   import compareAsc from "date-fns/compareAsc";
@@ -28,12 +17,20 @@
     leaveTaken,
     entitlementHours,
     carriedOver,
-    toilRemaining
+    toilRemaining,
+    categories
   } from "../stores/store.js";
 
   // manually setting userId is a hack until auth is implemented
   const userId = process.env.SAPPER_APP_USER_ID;
-  export let categories;
+
+  const apiUrl = process.env.SAPPER_APP_API_URL;
+
+  async function getCategories() {
+    const res = await fetch(`${apiUrl}/categories`);
+    const cats = await res.json()
+    categories.set(cats)
+  }
 
   async function getLeaveData(user, leaveYear) {
     let entitlement = await getEntitlement(user, leaveYear);
@@ -82,7 +79,8 @@
     const today = new Date();
     const currYear = today.getFullYear();
     const twoDigitYear = currYear.toString().slice(-2);
-    const result = compareAsc(today, new Date(currYear, 4, 1));
+    const cutoffDate = `${twoDigitYear}-04-01`
+    const result = compareAsc(today, new Date(cutoffDate));
     if (result === -1) {
       $dbLeaveYear = `${parseInt(twoDigitYear, 10) - 1}${twoDigitYear}`;
     } else {
@@ -208,6 +206,7 @@
 
   onMount(() => {
     $user = userId;
+    getCategories()
     getCurrentLeaveYear();
     setDisplayLeaveYear();
     setHolidayDisplayData($user, $dbLeaveYear);
@@ -216,9 +215,9 @@
 
 <NavBar on:changeLeaveYear={setLeaveYear} />
 <HolBalance />
-<HolTable on:deleteEntry={deleteLeaveEntry} {categories} />
+<HolTable on:deleteEntry={deleteLeaveEntry} />
 <HolForm
   on:addEntry={addLeaveEntry}
   on:updateEntry={editLeaveEntry}
   on:updateBalances={refreshLeaveData}
-  {categories} />
+  />

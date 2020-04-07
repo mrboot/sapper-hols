@@ -16,6 +16,7 @@ export let formData = writable({
   leaveYear: ""
 });
 
+export let categories = writable([]);
 export let tableData = writable([]);
 export let currentEntitlement = writable([]);
 export let leaveRemaining = writable(0);
