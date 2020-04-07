@@ -5,14 +5,12 @@
   import parseISO from "date-fns/parseISO";
   import { createEventDispatcher } from "svelte";
 
-  import { tableData, formData } from "../stores/store.js";
-
-  export let categories;
+  import { tableData, formData, categories } from "../stores/store.js";
 
   const dispatch = createEventDispatcher();
 
   let colours = {};
-  categories.map(category => {
+  $categories.map(category => {
     colours[category.category] = category.colour;
     return colours;
   });
