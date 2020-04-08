@@ -8,10 +8,14 @@ import config from 'sapper/config/rollup.js';
 import pkg from './package.json';
 import css from 'rollup-plugin-css-only';
 import sapperEnv from 'sapper-environment'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
+const apiBaseUrl = process.env.BASE_API_URL
 
 const onwarn = (warning, onwarn) => (warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) || onwarn(warning);
 
@@ -23,7 +27,8 @@ export default {
       replace({
         ...sapperEnv(),
         'process.browser': true,
-        'process.env.NODE_ENV': JSON.stringify(mode)
+        'process.env.NODE_ENV': JSON.stringify(mode),
+        'process.env.API_BASE_URL': JSON.stringify(apiBaseUrl)
       }),
       svelte({
         dev,

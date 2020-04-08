@@ -1,3 +1,18 @@
+<script context="module">
+  // import {apiUrl} from "../api/api.js"
+  const apiUrl = process.env.SAPPER_APP_API_URL;
+  // const envapiUrl = process.env.API_BASE_URL;
+  // console.log(apiUrl)
+  // console.log(envapiUrl)
+
+  export async function preload() {
+    const res = await this.fetch(`${apiUrl}/categories`);
+    return {
+      categories: await res.json()
+    };
+  }
+</script>
+
 <script>
   import { onMount } from "svelte";
   import compareAsc from "date-fns/compareAsc";
@@ -18,19 +33,17 @@
     entitlementHours,
     carriedOver,
     toilRemaining,
-    categories
+    // categories
   } from "../stores/store.js";
 
   // manually setting userId is a hack until auth is implemented
   const userId = process.env.SAPPER_APP_USER_ID;
 
+  // Need to set appiURL here as well as in the "module" script so the env var gets picked up.
   const apiUrl = process.env.SAPPER_APP_API_URL;
 
-  async function getCategories() {
-    const res = await fetch(`${apiUrl}/categories`);
-    const cats = await res.json()
-    categories.set(cats)
-  }
+  // picks up the categories var exported in the preload function in the "module" script
+  export let categories
 
   async function getLeaveData(user, leaveYear) {
     let entitlement = await getEntitlement(user, leaveYear);
@@ -206,7 +219,6 @@
 
   onMount(() => {
     $user = userId;
-    getCategories()
     getCurrentLeaveYear();
     setDisplayLeaveYear();
     setHolidayDisplayData($user, $dbLeaveYear);
@@ -215,9 +227,10 @@
 
 <NavBar on:changeLeaveYear={setLeaveYear} />
 <HolBalance />
-<HolTable on:deleteEntry={deleteLeaveEntry} />
+<HolTable on:deleteEntry={deleteLeaveEntry} {categories}/>
 <HolForm
   on:addEntry={addLeaveEntry}
   on:updateEntry={editLeaveEntry}
   on:updateBalances={refreshLeaveData}
+  {categories}
   />

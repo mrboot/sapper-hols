@@ -14,7 +14,9 @@
   import "flatpickr/dist/flatpickr.css";
   import "flatpickr/dist/themes/material_blue.css";
 
-  import { formData, dbLeaveYear, categories } from "../stores/store.js";
+  import { formData, dbLeaveYear } from "../stores/store.js";
+
+  export let categories
 
   const apiUrl = process.env.SAPPER_APP_API_URL;
   const dispatch = createEventDispatcher();
@@ -365,7 +367,7 @@
   <label for="category" class="category">Category</label>
   <div class="select-wrapper">
     <select bind:value={$formData.category} class="select-css" id="category">
-      {#each $categories as category}
+      {#each categories as category}
         <option value={category.category}>{category.category}</option>
       {/each}
       }
