@@ -1,10 +1,10 @@
 <script>
-  // import Nav from '../components/Nav.svelte';
+  // import NavBar from '../components/NavBar.svelte';
 
   // export let segment;
 </script>
 
-<!-- <Nav {segment}/> -->
+<!-- <NavBar {segment} /> -->
 
 <main>
   <slot />

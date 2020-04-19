@@ -40,7 +40,7 @@ export default {
         dedupe: ['svelte']
       }),
       commonjs(),
-      css({ output: "static/flatpickr.css" }),
+      css({ output: "static/custom.css" }),
 
       legacy && babel({
         extensions: ['.js', '.mjs', '.html', '.svelte'],

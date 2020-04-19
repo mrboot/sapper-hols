@@ -7,15 +7,9 @@
 
   import { tableData, formData } from "../stores/store.js";
 
-  export let categories
+  export let colours
 
   const dispatch = createEventDispatcher();
-
-  let colours = {};
-  categories.map(category => {
-    colours[category.category] = category.colour;
-    return colours;
-  });
 
   const hoursToDays = hours => hours / 8;
 

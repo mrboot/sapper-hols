@@ -6,6 +6,10 @@
 
   function adjustLeaveYear(direction) {
     dispatch("changeLeaveYear", { direction });
+    const cal = document.getElementById("caldisplay");
+    if (cal.style.display = "block") {
+      cal.style.display = "none";
+    }
   }
 </script>
 

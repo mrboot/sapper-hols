@@ -14,9 +14,11 @@
   import "flatpickr/dist/flatpickr.css";
   import "flatpickr/dist/themes/material_blue.css";
 
-  import { formData, dbLeaveYear } from "../stores/store.js";
+  // import { formData, dbLeaveYear } from "../stores/store.js";
+  import { formData } from "../stores/store.js";
 
   export let categories
+  export let dbLeaveYear
 
   const apiUrl = process.env.SAPPER_APP_API_URL;
   const dispatch = createEventDispatcher();
@@ -76,7 +78,7 @@
   function onSubmit() {
     const tableIndex = $formData.itemIndex;
     const leaveYear =
-      $formData.leaveYear === "" ? $dbLeaveYear : $formData.leaveYear;
+      $formData.leaveYear === "" ? dbLeaveYear : $formData.leaveYear;
     const formUpdate = {
       id: $formData.id,
       description: $formData.description,
