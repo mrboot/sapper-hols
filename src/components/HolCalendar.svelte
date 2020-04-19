@@ -11,6 +11,7 @@
   export let dbLeaveYear
 
   let tooltip = null;
+  let visible = false;
 
   function getCalDates(leaveYear) {
     const calStartDate = `20${leaveYear.slice(0, 2)}-03-31`
@@ -23,8 +24,10 @@
     const cal = document.getElementById("caldisplay");
     if (cal.style.display === "none" || cal.style.display === '') {
       cal.style.display = "block";
+      visible = true;
     } else {
       cal.style.display = "none";
+      visible = false;
     }
 
     // Need to wrap in check for browser as the calendar component is client side only
@@ -89,7 +92,13 @@
 </script>
 
 <div class="container">
-  <button class="display-button" on:click={toggleCal}>Show Calendar</button>
+  <button class="display-button" on:click={toggleCal}>
+  {#if visible}
+     Hide
+  {:else}
+     Show
+  {/if}
+   Calendar</button>
   <div id="caldisplay">
     <div class="calendar"></div>
   </div>
