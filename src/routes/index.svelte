@@ -1,3 +1,14 @@
+<script context="module">
+  const apiUrl = process.env.SAPPER_APP_API_URL;
+
+  export async function preload() {
+    const res = await this.fetch(`${apiUrl}/categories`);
+    return {
+      categories: await res.json()
+    };
+  }
+</script>
+
 <script>
   import { onMount } from "svelte";
   import compareAsc from "date-fns/compareAsc";
@@ -6,10 +17,11 @@
   import NavBar from "../components/NavBar.svelte";
   import HolTable from "../components/HolTable.svelte";
   import HolBalance from "../components/HolBalance.svelte";
+  import HolCalendar from "../components/HolCalendar.svelte";
 
   import {
     tableData,
-    dbLeaveYear,
+    // dbLeaveYear,
     displayLeaveYear,
     user,
     currentEntitlement,
@@ -18,19 +30,25 @@
     entitlementHours,
     carriedOver,
     toilRemaining,
-    categories
+    // categories
   } from "../stores/store.js";
+
+  let dbLeaveYear = ''
 
   // manually setting userId is a hack until auth is implemented
   const userId = process.env.SAPPER_APP_USER_ID;
 
+  // Need to set appiURL here as well as in the "module" script so the env var gets picked up.
   const apiUrl = process.env.SAPPER_APP_API_URL;
 
-  async function getCategories() {
-    const res = await fetch(`${apiUrl}/categories`);
-    const cats = await res.json()
-    categories.set(cats)
-  }
+  // picks up the categories var exported in the preload function in the "module" script
+  export let categories
+
+  let colours = {};
+  categories.map(category => {
+    colours[category.category] = category.colour;
+    return colours;
+  });
 
   async function getLeaveData(user, leaveYear) {
     let entitlement = await getEntitlement(user, leaveYear);
@@ -82,9 +100,9 @@
     const cutoffDate = `${twoDigitYear}-04-01`
     const result = compareAsc(today, new Date(cutoffDate));
     if (result === -1) {
-      $dbLeaveYear = `${parseInt(twoDigitYear, 10) - 1}${twoDigitYear}`;
+      dbLeaveYear = `${parseInt(twoDigitYear, 10) - 1}${twoDigitYear}`;
     } else {
-      $dbLeaveYear = `${twoDigitYear}${parseInt(twoDigitYear, 10) + 1}`;
+      dbLeaveYear = `${twoDigitYear}${parseInt(twoDigitYear, 10) + 1}`;
     }
   }
 
@@ -92,19 +110,19 @@
     let direction = event.detail.direction;
     let fromYear =
       direction === "up"
-        ? parseInt($dbLeaveYear.slice(0, 2)) + 1
-        : parseInt($dbLeaveYear.slice(0, 2)) - 1;
+        ? parseInt(dbLeaveYear.slice(0, 2)) + 1
+        : parseInt(dbLeaveYear.slice(0, 2)) - 1;
     let toYear =
       direction === "up"
-        ? parseInt($dbLeaveYear.slice(-2)) + 1
-        : parseInt($dbLeaveYear.slice(-2)) - 1;
-    $dbLeaveYear = `${fromYear}${toYear}`;
+        ? parseInt(dbLeaveYear.slice(-2)) + 1
+        : parseInt(dbLeaveYear.slice(-2)) - 1;
+    dbLeaveYear = `${fromYear}${toYear}`;
     setDisplayLeaveYear();
-    setHolidayDisplayData($user, $dbLeaveYear);
+    setHolidayDisplayData($user, dbLeaveYear);
   }
 
   function setDisplayLeaveYear() {
-    $displayLeaveYear = `${$dbLeaveYear.slice(0, 2)}/${$dbLeaveYear.slice(-2)}`;
+    $displayLeaveYear = `${dbLeaveYear.slice(0, 2)}/${dbLeaveYear.slice(-2)}`;
   }
 
   async function getEntitlement(user, leaveYear) {
@@ -118,7 +136,7 @@
   async function setEntitlement(base = 200, carried = 0) {
     const entitlementData = {
       user: $user,
-      leaveYear: $dbLeaveYear,
+      leaveYear: dbLeaveYear,
       base,
       carried,
     };
@@ -129,7 +147,7 @@
       },
       body: JSON.stringify(entitlementData)
     });
-    const entitlement = await getEntitlement($user, $dbLeaveYear);
+    const entitlement = await getEntitlement($user, dbLeaveYear);
     return entitlement;
   }
 
@@ -159,7 +177,7 @@
   }
 
   function refreshLeaveData() {
-    setHolidayDisplayData($user, $dbLeaveYear);
+    setHolidayDisplayData($user, dbLeaveYear);
   }
 
   async function deleteLeaveEntry(event) {
@@ -173,7 +191,7 @@
   async function addLeaveEntry(event) {
     const leaveEntry = {
       user: $user,
-      // leaveYear: $dbLeaveYear,
+      // leaveYear: dbLeaveYear,
       ...event.detail
     };
     console.log(leaveEntry)
@@ -191,7 +209,7 @@
     const {id, ...leaveValues} = event.detail
     const leaveEntry = {
       user: $user,
-      // leaveYear: $dbLeaveYear,
+      // leaveYear: dbLeaveYear,
       ...leaveValues
     };
     const res = await fetch(`${apiUrl}/holidays/${id}`, {
@@ -209,15 +227,18 @@
     getCategories()
     getCurrentLeaveYear();
     setDisplayLeaveYear();
-    setHolidayDisplayData($user, $dbLeaveYear);
+    setHolidayDisplayData($user, dbLeaveYear);
   });
 </script>
 
 <NavBar on:changeLeaveYear={setLeaveYear} />
 <HolBalance />
-<HolTable on:deleteEntry={deleteLeaveEntry} />
+<HolTable on:deleteEntry={deleteLeaveEntry} {colours}/>
 <HolForm
   on:addEntry={addLeaveEntry}
   on:updateEntry={editLeaveEntry}
   on:updateBalances={refreshLeaveData}
-  />
+  {categories}
+  {dbLeaveYear}
+/>
+<HolCalendar {colours} {dbLeaveYear} />

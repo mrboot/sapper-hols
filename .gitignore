@@ -1,8 +1,10 @@
 .env
 .DS_Store
+static/flatpickr.css
 /node_modules/
 /src/node_modules/@sapper/
 yarn-error.log
 /cypress/screenshots/
 /__sapper__/
 /.vscode/
+static/custom.css

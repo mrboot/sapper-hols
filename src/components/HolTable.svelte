@@ -1,35 +1,30 @@
 <script>
-  import { onMount } from "svelte";
-  import Swal from "sweetalert2";
-  import { format } from "date-fns";
-  import parseISO from "date-fns/parseISO";
-  import { createEventDispatcher } from "svelte";
+  import Swal from 'sweetalert2'
+  import { format } from 'date-fns'
+  import parseISO from 'date-fns/parseISO'
+  import { createEventDispatcher } from 'svelte'
 
-  import { tableData, formData, categories } from "../stores/store.js";
+  import { tableData, formData } from '../stores/store.js'
 
-  const dispatch = createEventDispatcher();
+  export let colours
 
-  let colours = {};
-  $categories.map(category => {
-    colours[category.category] = category.colour;
-    return colours;
-  });
+  const dispatch = createEventDispatcher()
 
-  const hoursToDays = hours => hours / 8;
+  const hoursToDays = hours => hours / 8
 
   const displayDays = hours => {
     if (hours === 0) {
-      return "";
+      return ''
     }
-    const days = hoursToDays(hours);
-    const word = days > 1 ? "days" : "day";
-    return `${hours} hours (${days} ${word})`;
-  };
+    const days = hoursToDays(hours)
+    const word = days > 1 ? 'days' : 'day'
+    return `${hours} hours (${days} ${word})`
+  }
 
   const displayDates = holDate => {
-    const holTrueDate = parseISO(holDate);
-    return format(holTrueDate, "EEE do LLL yyyy");
-  };
+    const holTrueDate = parseISO(holDate)
+    return format(holTrueDate, 'EEE do LLL yyyy')
+  }
 
   function editHoliday(data, index) {
     const editData = {
@@ -41,48 +36,48 @@
       category: data.category,
       duration: data.duration,
       leaveYear: data.leaveYear
-    };
-    formData.set(editData);
+    }
+    formData.set(editData)
   }
 
   function deleteHolFromDb(holId) {
-    dispatch("deleteEntry", {
+    dispatch('deleteEntry', {
       holId
-    });
+    })
   }
 
   const deleteHoliday = hol => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      icon: 'warning',
       showClass: {
-        popup: ""
+        popup: ''
       },
       hideClass: {
-        popup: ""
+        popup: ''
       },
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
     }).then(result => {
       if (result.value) {
-        deleteHolFromDb(hol.id);
+        deleteHolFromDb(hol.id)
         Swal.fire({
-          title: "Deleted!",
-          text: "Holiday has been deleted.",
-          icon: "success",
+          title: 'Deleted!',
+          text: 'Holiday has been deleted.',
+          icon: 'success',
           showClass: {
-            popup: ""
+            popup: ''
           },
           hideClass: {
-            popup: ""
+            popup: ''
           }
-        });
+        })
       }
-    });
-  };
+    })
+  }
 </script>
 
 <style>

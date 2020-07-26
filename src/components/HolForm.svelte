@@ -1,80 +1,85 @@
 <script>
-  import eachDayOfInterval from "date-fns/eachDayOfInterval";
-  import isWeekend from "date-fns/isWeekend";
-  import startOfDay from "date-fns/startOfDay";
-  import endOfDay from "date-fns/endOfDay";
-  import addMinutes from "date-fns/addMinutes";
-  import parseISO from "date-fns/parseISO";
-  import compareAsc from "date-fns/compareAsc";
-  import format from "date-fns/format";
-  import { createEventDispatcher } from "svelte";
+  /* eslint-disable no-unused-vars */
+  import eachDayOfInterval from 'date-fns/eachDayOfInterval'
+  import isWeekend from 'date-fns/isWeekend'
+  import startOfDay from 'date-fns/startOfDay'
+  import endOfDay from 'date-fns/endOfDay'
+  import addMinutes from 'date-fns/addMinutes'
+  import parseISO from 'date-fns/parseISO'
+  import compareAsc from 'date-fns/compareAsc'
+  import format from 'date-fns/format'
+  import { createEventDispatcher } from 'svelte'
 
-  import Flatpickr from "svelte-flatpickr/src/Flatpickr.svelte";
+  import Flatpickr from 'svelte-flatpickr/src/Flatpickr.svelte'
   // We can import the below CSS as we have enabled in rollup.config
-  import "flatpickr/dist/flatpickr.css";
-  import "flatpickr/dist/themes/material_blue.css";
+  import 'flatpickr/dist/flatpickr.css'
+  import 'flatpickr/dist/themes/material_blue.css'
 
-  import { formData, dbLeaveYear, categories } from "../stores/store.js";
+  // import { formData, dbLeaveYear } from "../stores/store.js";
+  import { formData } from '../stores/store.js'
 
-  const apiUrl = process.env.SAPPER_APP_API_URL;
-  const dispatch = createEventDispatcher();
+  export let categories
+  export let dbLeaveYear
+
+  const apiUrl = process.env.SAPPER_APP_API_URL
+  const dispatch = createEventDispatcher()
 
   const flatpickrStartOptions = {
     onChange: (selectedDates, dateStr, instance) => {
       // make sure the passed in dateStr is an actual date so date-fns can use it
-      const selectedStartDate = parseISO(dateStr);
-      $formData.startDate = selectedStartDate;
+      const selectedStartDate = parseISO(dateStr)
+      $formData.startDate = selectedStartDate
 
-      if ($formData.endDate === "") {
-        $formData.endDate = selectedStartDate;
-        $formData.duration = 8;
+      if ($formData.endDate === '') {
+        $formData.endDate = selectedStartDate
+        $formData.duration = 8
       } else {
-        const dateDiff = compareAsc(selectedStartDate, $formData.endDate);
+        const dateDiff = compareAsc(selectedStartDate, $formData.endDate)
         if (dateDiff === -1) {
           $formData.duration = getHolDuration(
             $formData.startDate,
             $formData.endDate
-          );
+          )
         } else {
-          $formData.endDate = new Date(dateStr);
-          $formData.duration = 8;
+          $formData.endDate = new Date(dateStr)
+          $formData.duration = 8
         }
       }
     }
-  };
+  }
 
   const flatpickrEndOptions = {
     onChange: (selectedDates, dateStr, instance) => {
-      const selectedEndDate = parseISO(dateStr);
-      $formData.endDate = selectedEndDate;
-      setDuration();
+      const selectedEndDate = parseISO(dateStr)
+      $formData.endDate = selectedEndDate
+      setDuration()
     }
-  };
+  }
 
   async function setDuration() {
     const holDuration = await getHolDuration(
       $formData.startDate,
       $formData.endDate
-    );
-    $formData.duration = holDuration;
+    )
+    $formData.duration = holDuration
   }
 
   function addHolidayToDb(updatePayload) {
-    dispatch("addEntry", updatePayload);
+    dispatch('addEntry', updatePayload)
   }
 
   function updateHolidayInDb(updatePayload) {
-    dispatch("updateEntry", updatePayload);
+    dispatch('updateEntry', updatePayload)
   }
 
   function updateHolidayBalances() {
-    dispatch("updateBalances");
+    dispatch('updateBalances')
   }
 
   function onSubmit() {
-    const tableIndex = $formData.itemIndex;
+    const tableIndex = $formData.itemIndex
     const leaveYear =
-      $formData.leaveYear === "" ? $dbLeaveYear : $formData.leaveYear;
+      $formData.leaveYear === '' ? dbLeaveYear : $formData.leaveYear
     const formUpdate = {
       id: $formData.id,
       description: $formData.description,
@@ -83,79 +88,79 @@
       category: $formData.category,
       duration: $formData.duration,
       leaveYear: leaveYear
-    };
+    }
     if (tableIndex >= 0) {
-      updateHolidayInDb(formUpdate);
+      updateHolidayInDb(formUpdate)
     } else {
-      addHolidayToDb(formUpdate);
+      addHolidayToDb(formUpdate)
     }
     formData.set({
       id: null,
-      description: "",
-      startDate: "",
-      endDate: "",
-      category: "",
+      description: '',
+      startDate: '',
+      endDate: '',
+      category: '',
       duration: 0,
-      leaveYear: ""
-    });
-    updateHolidayBalances();
+      leaveYear: ''
+    })
+    updateHolidayBalances()
   }
 
   async function getHolDuration(from, to) {
-    const fromDate = startOfDay(from);
-    const toDate = endOfDay(to);
-    const fromDateYear = fromDate.getFullYear();
-    const toDateYear = toDate.getFullYear();
-    const tzOffset = Math.abs(fromDate.getTimezoneOffset());
+    const fromDate = startOfDay(from)
+    const toDate = endOfDay(to)
+    const fromDateYear = fromDate.getFullYear()
+    const toDateYear = toDate.getFullYear()
+    const tzOffset = Math.abs(fromDate.getTimezoneOffset())
     // get an array of days for the selected holiday dates
     const selectedDays = eachDayOfInterval({
       start: fromDate,
       end: toDate
-    });
+    })
     // adjust the time to be midnight on all the dates
     const adjSelectedDays = selectedDays.map(day =>
       addMinutes(new Date(day.toUTCString()), tzOffset)
-    );
-    let numHolDays = 0;
+    )
+    let numHolDays = 0
     // dont filter weekends if it's TOIL (earned)
-    if ($formData.category === "TOIL (earned)") {
-      numHolDays = adjSelectedDays.length;
+    if ($formData.category === 'TOIL (earned)') {
+      numHolDays = adjSelectedDays.length
     } else {
       // remove weekend days (Sat & Sun) from the array
-      const noWeekends = adjSelectedDays.filter(day => !isWeekend(day));
+      const noWeekends = adjSelectedDays.filter(day => !isWeekend(day))
       // remove any Bank Holiday days from the array
       const weekDays = await filterBankHols(
         noWeekends,
         fromDateYear,
         toDateYear
-      );
+      )
       // count the days left and multiply by 8 to get number of hours in  working day
-      numHolDays = weekDays.length;
+      numHolDays = weekDays.length
     }
-    return numHolDays * 8;
+    return numHolDays * 8
   }
 
   async function filterBankHols(dateList, startYear, endYear) {
-    const bankHols = await getPublicHolidays(startYear, endYear);
+    const bankHols = await getPublicHolidays(startYear, endYear)
     const bankHolsArray = bankHols.map(bankHol => {
-      return bankHol.date;
-    });
+      return bankHol.date
+    })
     const noBankHols = dateList
       .map(day => {
-        return format(day, "yyyy-MM-dd").toString();
+        return format(day, 'yyyy-MM-dd').toString()
       })
       .filter(day => {
-        return !bankHolsArray.includes(day);
-      });
-    return noBankHols;
+        return !bankHolsArray.includes(day)
+      })
+    return noBankHols
   }
 
   async function getPublicHolidays(startYear, endYear) {
     const res = await fetch(
       `${apiUrl}/bank-holidays/search?startYear=${startYear}&endYear=${endYear}`
-    );
-    const bankHols = await res.json();
-    return bankHols;
+    )
+    const bankHols = await res.json()
+    return bankHols
   }
 </script>
 
