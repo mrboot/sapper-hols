@@ -224,7 +224,7 @@
 
   onMount(() => {
     $user = userId;
-    getCategories()
+    // getCategories()
     getCurrentLeaveYear();
     setDisplayLeaveYear();
     setHolidayDisplayData($user, dbLeaveYear);

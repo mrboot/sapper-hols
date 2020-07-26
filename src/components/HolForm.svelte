@@ -370,7 +370,7 @@
   <label for="category" class="category">Category</label>
   <div class="select-wrapper">
     <select bind:value={$formData.category} class="select-css" id="category">
-      {#each $categories as category}
+      {#each categories as category}
         <option value={category.category}>{category.category}</option>
       {/each}
     </select>
