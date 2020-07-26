@@ -373,7 +373,6 @@
       {#each $categories as category}
         <option value={category.category}>{category.category}</option>
       {/each}
-      }
     </select>
   </div>
 
