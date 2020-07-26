@@ -1,14 +1,14 @@
 <script>
-  import { createEventDispatcher } from "svelte";
-  import { displayLeaveYear } from "../stores/store.js";
+  import { createEventDispatcher } from 'svelte'
+  import { displayLeaveYear } from '../stores/store.js'
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher()
 
   function adjustLeaveYear(direction) {
-    dispatch("changeLeaveYear", { direction });
-    const cal = document.getElementById("caldisplay");
-    if (cal.style.display = "block") {
-      cal.style.display = "none";
+    dispatch('changeLeaveYear', { direction })
+    const cal = document.getElementById('caldisplay')
+    if (cal.style.display === 'block') {
+      cal.style.display = 'none'
     }
   }
 </script>
@@ -111,7 +111,7 @@
       class="ant-btn ant-btn-edit"
       type="button"
       on:click={() => {
-        adjustLeaveYear('down');
+        adjustLeaveYear('down')
       }}>
       <i class="fas fa-arrow-circle-left" />
       Previous
@@ -121,7 +121,7 @@
       class="ant-btn ant-btn-edit"
       type="button"
       on:click={() => {
-        adjustLeaveYear('up');
+        adjustLeaveYear('up')
       }}>
       Next
       <i class="fas fa-arrow-circle-right" />

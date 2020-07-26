@@ -1,33 +1,32 @@
 <script>
-  import {onMount} from 'svelte'
-  import tippy from 'tippy.js';
-  import Calendar from 'js-year-calendar';
-  import 'js-year-calendar/dist/js-year-calendar.css';
-  import 'tippy.js/dist/tippy.css';
-  import 'tippy.js/themes/material.css';
+  import tippy from 'tippy.js'
+  import Calendar from 'js-year-calendar'
+  import 'js-year-calendar/dist/js-year-calendar.css'
+  import 'tippy.js/dist/tippy.css'
+  import 'tippy.js/themes/material.css'
 
-  import { user } from "../stores/store.js";
+  import { user } from '../stores/store.js'
   export let colours
   export let dbLeaveYear
 
-  let tooltip = null;
-  let visible = false;
+  let tooltip = null
+  let visible = false
 
   function getCalDates(leaveYear) {
     const calStartDate = `20${leaveYear.slice(0, 2)}-03-31`
     const calEndDate = `20${leaveYear.slice(-2)}-03-31`
-    return {calStartDate, calEndDate}
+    return { calStartDate, calEndDate }
   }
 
   function toggleCal() {
-    const {calStartDate, calEndDate} = getCalDates(dbLeaveYear)
-    const cal = document.getElementById("caldisplay");
-    if (cal.style.display === "none" || cal.style.display === '') {
-      cal.style.display = "block";
-      visible = true;
+    const { calStartDate, calEndDate } = getCalDates(dbLeaveYear)
+    const cal = document.getElementById('caldisplay')
+    if (cal.style.display === 'none' || cal.style.display === '') {
+      cal.style.display = 'block'
+      visible = true
     } else {
-      cal.style.display = "none";
-      visible = false;
+      cal.style.display = 'none'
+      visible = false
     }
 
     // Need to wrap in check for browser as the calendar component is client side only
@@ -38,36 +37,36 @@
       maxDate: new Date(calEndDate),
       mouseOnDay: function(e) {
         if (e.events.length > 0) {
-          let content = '';
+          let content = ''
                     
           for (let i in e.events) {
             content += '<div class="event-tooltip-content">'
               // + '<div class="event-name">' + e.events[i].name + '</div>'
               + '<div class="event-name" style="color:' + e.events[i].color + '">' + e.events[i].name + '</div>'
-              + '</div>';
+              + '</div>'
           }
           
           if (tooltip !== null) {
-            tooltip.destroy();
-            tooltip = null;
+            tooltip.destroy()
+            tooltip = null
           }
           
           tooltip = tippy(e.element, {
-              theme: 'material',
-              placement: 'right',
-              content: content,
-              allowHTML: true,
-              // animateFill: false,
-              animation: 'shift-away',
-              arrow: true
-          });
-          tooltip.show();
+            theme: 'material',
+            placement: 'right',
+            content: content,
+            allowHTML: true,
+            // animateFill: false,
+            animation: 'shift-away',
+            arrow: true
+          })
+          tooltip.show()
         }
       },
       mouseOutDay: function() {
         if (tooltip !== null) {
-          tooltip.destroy();
-          tooltip = null;
+          tooltip.destroy()
+          tooltip = null
         }
       }
     })
@@ -81,11 +80,11 @@
               endDate: new Date(r.endDate),
               name: r.description,
               color: `light${colours[r.category]}`
-            }));
+            }))
           }
           
-          return [];
-        });
+          return []
+        })
     })
   // };
   } 

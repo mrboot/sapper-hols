@@ -1,6 +1,6 @@
 <script>
-  import { slide } from "svelte/transition";
-  import { cubicOut } from "svelte/easing";
+  import { slide } from 'svelte/transition'
+  import { cubicOut } from 'svelte/easing'
 
   import {
     leaveRemaining,
@@ -8,31 +8,31 @@
     entitlementHours,
     carriedOver,
     toilRemaining
-  } from "../stores/store.js";
+  } from '../stores/store.js'
 
-  let visible = false;
+  let visible = false
 
   function toggleVisible() {
-    visible = !visible;
+    visible = !visible
   }
 
-  const hoursToDays = hours => hours / 8;
+  const hoursToDays = hours => hours / 8
 
   const displayDays = hours => {
-    const days = hoursToDays(hours);
-    let word = "";
+    const days = hoursToDays(hours)
+    let word = ''
     switch (days) {
       case 0:
-        word = "days";
-        break;
+        word = 'days'
+        break
       case 1:
-        word = "day";
-        break;
+        word = 'day'
+        break
       default:
-        word = "days";
+        word = 'days'
     }
-    return `${hours} hours (${days} ${word})`;
-  };
+    return `${hours} hours (${days} ${word})`
+  }
 </script>
 
 <div class="balance-container">
