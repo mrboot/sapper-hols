@@ -8,21 +8,24 @@
   import parseISO from 'date-fns/parseISO'
   import compareAsc from 'date-fns/compareAsc'
   import format from 'date-fns/format'
-  import { createEventDispatcher } from 'svelte'
 
   import Flatpickr from 'svelte-flatpickr/src/Flatpickr.svelte'
   // We can import the below CSS as we have enabled in rollup.config
   import 'flatpickr/dist/flatpickr.css'
   import 'flatpickr/dist/themes/material_blue.css'
 
-  // import { formData, dbLeaveYear } from "../stores/store.js";
-  import { formData } from '../stores/store.js'
-
-  export let categories
-  export let dbLeaveYear
+  import { 
+    formData, 
+    dbLeaveYear, 
+    categories, 
+    addLeaveEntry, 
+    editLeaveEntry, 
+    setHolidayDisplayData, 
+    user,
+    getPublicHolidays,
+  } from '../stores/store.js'
 
   const apiUrl = process.env.SAPPER_APP_API_URL
-  const dispatch = createEventDispatcher()
 
   const flatpickrStartOptions = {
     onChange: (selectedDates, dateStr, instance) => {
@@ -65,21 +68,17 @@
   }
 
   function addHolidayToDb(updatePayload) {
-    dispatch('addEntry', updatePayload)
+    addLeaveEntry($user, $dbLeaveYear, updatePayload)
   }
-
+  
   function updateHolidayInDb(updatePayload) {
-    dispatch('updateEntry', updatePayload)
-  }
-
-  function updateHolidayBalances() {
-    dispatch('updateBalances')
+    editLeaveEntry($user, $dbLeaveYear, updatePayload)
   }
 
   function onSubmit() {
     const tableIndex = $formData.itemIndex
     const leaveYear =
-      $formData.leaveYear === '' ? dbLeaveYear : $formData.leaveYear
+      $formData.leaveYear === '' ? $dbLeaveYear : $formData.leaveYear
     const formUpdate = {
       id: $formData.id,
       description: $formData.description,
@@ -99,11 +98,10 @@
       description: '',
       startDate: '',
       endDate: '',
-      category: '',
+      category: 'Holiday',
       duration: 0,
       leaveYear: ''
     })
-    updateHolidayBalances()
   }
 
   async function getHolDuration(from, to) {
@@ -155,14 +153,63 @@
     return noBankHols
   }
 
-  async function getPublicHolidays(startYear, endYear) {
-    const res = await fetch(
-      `${apiUrl}/bank-holidays/search?startYear=${startYear}&endYear=${endYear}`
-    )
-    const bankHols = await res.json()
-    return bankHols
-  }
 </script>
+
+<div class="container">
+  <hr class="hr-text" data-content="Add a Holiday" />
+</div>
+
+<form class="form1" on:submit|preventDefault={onSubmit} id="hol-form">
+
+  <label for="holdesc" class="description">Holiday Description</label>
+  <input bind:value={$formData.description} id="holdesc" type="text" />
+
+  <label for="category" class="category">Category</label>
+  <div class="select-wrapper">
+    <select bind:value={$formData.category} class="select-css" id="category">
+      {#each $categories as category}
+        <option value={category.category}>{category.category}</option>
+      {/each}
+    </select>
+  </div>
+
+  <label for="startdate">Dates (from - to)</label>
+
+  <div class="daterange">
+    <Flatpickr
+      options={flatpickrStartOptions}
+      bind:value={$formData.startDate}
+      element="#start-date">
+      <div class="flatpickr" id="start-date">
+        <input
+          type="text"
+          class="datefield"
+          placeholder="Select Start Date"
+          data-input />
+      </div>
+    </Flatpickr>
+    <span id="datespan">-</span>
+    <Flatpickr
+      options={flatpickrEndOptions}
+      bind:value={$formData.endDate}
+      element="#end-date">
+      <div class="flatpickr" id="end-date">
+        <input
+          type="text"
+          class="datefield"
+          placeholder="Select End Date"
+          data-input />
+      </div>
+    </Flatpickr>
+  </div>
+
+  <label for="duration">Duration (hours)</label>
+  <input bind:value={$formData.duration} id="duration" type="number" />
+
+  <button type="submit" class="submit-button">
+    {#if $formData.itemIndex >= 0}Update{:else}Add{/if}
+  </button>
+</form>
 
 <style>
   .container {
@@ -357,59 +404,3 @@
     margin: 5px;
   }
 </style>
-
-<div class="container">
-  <hr class="hr-text" data-content="Add a Holiday" />
-</div>
-
-<form class="form1" on:submit|preventDefault={onSubmit} id="hol-form">
-
-  <label for="holdesc" class="description">Holiday Description</label>
-  <input bind:value={$formData.description} id="holdesc" type="text" />
-
-  <label for="category" class="category">Category</label>
-  <div class="select-wrapper">
-    <select bind:value={$formData.category} class="select-css" id="category">
-      {#each categories as category}
-        <option value={category.category}>{category.category}</option>
-      {/each}
-    </select>
-  </div>
-
-  <label for="startdate">Dates (from - to)</label>
-
-  <div class="daterange">
-    <Flatpickr
-      options={flatpickrStartOptions}
-      bind:value={$formData.startDate}
-      element="#start-date">
-      <div class="flatpickr" id="start-date">
-        <input
-          type="text"
-          class="datefield"
-          placeholder="Select Start Date"
-          data-input />
-      </div>
-    </Flatpickr>
-    <span id="datespan">-</span>
-    <Flatpickr
-      options={flatpickrEndOptions}
-      bind:value={$formData.endDate}
-      element="#end-date">
-      <div class="flatpickr" id="end-date">
-        <input
-          type="text"
-          class="datefield"
-          placeholder="Select End Date"
-          data-input />
-      </div>
-    </Flatpickr>
-  </div>
-
-  <label for="duration">Duration (hours)</label>
-  <input bind:value={$formData.duration} id="duration" type="number" />
-
-  <button type="submit" class="submit-button">
-    {#if $formData.itemIndex >= 0}Update{:else}Add{/if}
-  </button>
-</form>

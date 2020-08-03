@@ -2,13 +2,17 @@
   import Swal from 'sweetalert2'
   import { format } from 'date-fns'
   import parseISO from 'date-fns/parseISO'
-  import { createEventDispatcher } from 'svelte'
+  import { onMount } from 'svelte'
 
-  import { tableData, formData } from '../stores/store.js'
-
-  export let colours
-
-  const dispatch = createEventDispatcher()
+  import { 
+    tableData, 
+    formData, 
+    holColours, 
+    user, 
+    dbLeaveYear, 
+    setHolidayDisplayData, 
+    deleteLeaveEntry 
+  } from '../stores/store.js'
 
   const hoursToDays = hours => hours / 8
 
@@ -41,9 +45,7 @@
   }
 
   function deleteHolFromDb(holId) {
-    dispatch('deleteEntry', {
-      holId
-    })
+    deleteLeaveEntry($user, $dbLeaveYear, holId)
   }
 
   const deleteHoliday = hol => {
@@ -78,7 +80,55 @@
       }
     })
   }
+
+  onMount(() => {
+    setHolidayDisplayData($user, $dbLeaveYear);
+  })
 </script>
+
+<table class="table-fill">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>Category</th>
+      <th>Duration</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {#each $tableData as holiday, index}
+      <tr key={holiday.id}>
+        <td>{holiday.description}</td>
+        <td>{displayDates(holiday.startDate)}</td>
+        <td>{displayDates(holiday.endDate)}</td>
+        <td>
+          <span class={`tag tag-${$holColours[holiday.category]}`}>
+            {holiday.category.toUpperCase()}
+          </span>
+        </td>
+        <td>{displayDays(holiday.duration)}</td>
+        <td class="text-left">
+          <button
+            class="ant-btn ant-btn-edit"
+            type="button"
+            on:click={() => editHoliday(holiday, index)}>
+            <i class="fas fa-edit" />
+            <span>Edit</span>
+          </button>
+          <button
+            class="ant-btn ant-btn-danger"
+            type="button"
+            on:click={() => deleteHoliday(holiday)}>
+            <i class="fas fa-times-circle" />
+            <span>Delete</span>
+          </button>
+        </td>
+      </tr>
+    {/each}
+  </tbody>
+</table>
 
 <style>
   /*** Table Styles **/
@@ -297,49 +347,3 @@
     border-color: #4169e1;
   }
 </style>
-
-<table class="table-fill">
-  <thead>
-    <tr>
-      <th>Description</th>
-      <th>Start Date</th>
-      <th>End Date</th>
-      <th>Category</th>
-      <th>Duration</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {#each $tableData as holiday, index}
-      <tr key={holiday.id}>
-        <td>{holiday.description}</td>
-        <!-- <td>{holiday.startDate}</td>
-        <td>{holiday.endDate}</td> -->
-        <td>{displayDates(holiday.startDate)}</td>
-        <td>{displayDates(holiday.endDate)}</td>
-        <td>
-          <span class={`tag tag-${colours[holiday.category]}`}>
-            {holiday.category.toUpperCase()}
-          </span>
-        </td>
-        <td>{displayDays(holiday.duration)}</td>
-        <td class="text-left">
-          <button
-            class="ant-btn ant-btn-edit"
-            type="button"
-            on:click={() => editHoliday(holiday, index)}>
-            <i class="fas fa-edit" />
-            <span>Edit</span>
-          </button>
-          <button
-            class="ant-btn ant-btn-danger"
-            type="button"
-            on:click={() => deleteHoliday(holiday)}>
-            <i class="fas fa-times-circle" />
-            <span>Delete</span>
-          </button>
-        </td>
-      </tr>
-    {/each}
-  </tbody>
-</table>

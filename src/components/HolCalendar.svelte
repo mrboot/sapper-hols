@@ -5,9 +5,7 @@
   import 'tippy.js/dist/tippy.css'
   import 'tippy.js/themes/material.css'
 
-  import { user } from '../stores/store.js'
-  export let colours
-  export let dbLeaveYear
+  import { user, holColours, dbLeaveYear } from '../stores/store.js'
 
   let tooltip = null
   let visible = false
@@ -19,7 +17,7 @@
   }
 
   function toggleCal() {
-    const { calStartDate, calEndDate } = getCalDates(dbLeaveYear)
+    const { calStartDate, calEndDate } = getCalDates($dbLeaveYear)
     const cal = document.getElementById('caldisplay')
     if (cal.style.display === 'none' || cal.style.display === '') {
       cal.style.display = 'block'
@@ -71,7 +69,7 @@
       }
     })
     calendar.setDataSource(function() {
-      return fetch(`http://10.0.0.38:5337/holidays?user=${$user}&leaveYear=${dbLeaveYear}`)
+      return fetch(`http://10.0.0.38:5337/holidays?user=${$user}&leaveYear=${$dbLeaveYear}`)
         .then(result => result.json())
         .then(result => {
           if (result) {
@@ -79,16 +77,16 @@
               startDate: new Date(r.startDate),
               endDate: new Date(r.endDate),
               name: r.description,
-              color: `light${colours[r.category]}`
+              color: `light${$holColours[r.category]}`
             }))
           }
-          
           return []
         })
     })
   // };
   } 
 </script>
+
 
 <div class="container">
   <button class="display-button" on:click={toggleCal}>
@@ -104,6 +102,7 @@
 </div>
 
 <style>
+  
   .container {
     text-align: center;
   }
