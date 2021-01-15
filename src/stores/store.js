@@ -33,7 +33,7 @@ export function getCurrentLeaveYear() {
   const today = new Date()
   const currYear = today.getFullYear()
   const twoDigitYear = currYear.toString().slice(-2)
-  const cutoffDate = `${twoDigitYear}-04-01`
+  const cutoffDate = `${currYear}-04-01`
   const result = compareAsc(today, new Date(cutoffDate))
   if (result === -1) {
     dbLeaveYear.set(`${parseInt(twoDigitYear, 10) - 1}${twoDigitYear}`)
